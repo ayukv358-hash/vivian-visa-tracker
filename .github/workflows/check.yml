@@ -43,7 +43,11 @@ jobs:
           wc -c /tmp/loader.js
           echo "LOADER_HEAD:"
           head -c 3000 /tmp/loader.js
-
+      - name: Inspect Bookitit loader
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "BOOKITIT ENDPOINT REFERENCES:"
+          grep -oiE '.{0,100}(onlinebookings|getwidget|getservices|getagendas|datetime).{0,150}' /tmp/loader.js | head -50
       - name: Save checker state
         run: |
           git config user.name "visa-tracker-bot"
