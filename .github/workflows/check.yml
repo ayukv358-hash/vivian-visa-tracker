@@ -49,3 +49,11 @@ jobs:
           git add state.json
           git diff --cached --quiet || git commit -m "Update appointment checker state"
           git push
+        - name: Test Bookitit widget loader
+          if: github.event_name == 'workflow_dispatch'
+          run: |
+            curl -L --max-time 30 -A "Mozilla/5.0" "https://app.bookitit.com/js/widgets/loader.js" -o /tmp/loader.js -w "\nHTTP_STATUS:%{http_code}\n"
+            echo "LOADER_BYTES:"
+            wc -c /tmp/loader.js
+            echo "LOADER_HEAD:"
+            head -c 3000 /tmp/loader.js
