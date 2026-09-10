@@ -35,12 +35,14 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python check_visa.py
 
-      - name: Test Bookitit endpoint
+      - name: Test Bookitit widget loader
         if: github.event_name == 'workflow_dispatch'
         run: |
-          curl -L --max-time 30 -A "Mozilla/5.0" -e "https://www.citaconsular.es/" --get "https://www.citaconsular.es/onlinebookings/datetime/" --data-urlencode "callback=" --data-urlencode "type=default" --data-urlencode "publickey=2c7359283dfa615bb8bf086b630561d9" --data-urlencode "lang=es" --data-urlencode "services[]=bkt776435" --data-urlencode "start=2026-09-11" --data-urlencode "end=2026-10-11" --data-urlencode "src=https://www.citaconsular.es/" -o /tmp/bookitit.txt -w "\nHTTP_STATUS:%{http_code}\n"
-          echo "RESPONSE:"
-          head -c 4000 /tmp/bookitit.txt
+          curl -L --max-time 30 -A "Mozilla/5.0" "https://app.bookitit.com/js/widgets/loader.js" -o /tmp/loader.js -w "\nHTTP_STATUS:%{http_code}\n"
+          echo "LOADER_BYTES:"
+          wc -c /tmp/loader.js
+          echo "LOADER_HEAD:"
+          head -c 3000 /tmp/loader.js
 
       - name: Save checker state
         run: |
@@ -49,11 +51,3 @@ jobs:
           git add state.json
           git diff --cached --quiet || git commit -m "Update appointment checker state"
           git push
-        - name: Test Bookitit widget loader
-          if: github.event_name == 'workflow_dispatch'
-          run: |
-            curl -L --max-time 30 -A "Mozilla/5.0" "https://app.bookitit.com/js/widgets/loader.js" -o /tmp/loader.js -w "\nHTTP_STATUS:%{http_code}\n"
-            echo "LOADER_BYTES:"
-            wc -c /tmp/loader.js
-            echo "LOADER_HEAD:"
-            head -c 3000 /tmp/loader.js
